@@ -1,0 +1,272 @@
+<h1>{{pageTitle}}</h1>
+
+<style>
+    .add-btn{
+        box-shadow: 0 0 0 .05rem rgba(0,123,255,.25);
+    }
+    #addMovie{
+        background-color:khaki;
+    }
+</style>
+<div id="addMovie" class="container">
+    <form action="/api/Movies/" method="POST">
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label for="title">Title</label>
+          <input type="text" class="form-control" id="title" name="title" placeholder="Enter movie title" required>
+        </div>
+        <div class="form-group col-md-4">
+          <label for="runtime">Runtime</label>
+          <input type="number" class="form-control" id="runtime" name="runtime" placeholder="Enter runtime">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="type">Type</label>
+            <input type="text" class="form-control" id="type" name="type" placeholder="Enter type">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="plot">Plot</label>
+        <textarea class="form-control" id="plot" rows="3" name="plot" placeholder="Enter plot" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="poster">Poster URL</label>
+        <input type="url" class="form-control" id="poster" name="poster" placeholder="Enter poster URL">
+      </div>
+      <div class="form-group">
+        <label for="fullplot">Full Plot</label>
+        <textarea class="form-control" id="fullplot" name="fullplot" rows="5" placeholder="Enter full plot"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label class="mr-5">Genres</label>
+                </div>
+                <div class="col-md-9">
+                    <button class="btn add-genre-btn py-1 add-btn" type="button" data-container-id="genresContainer" data-input-name="genre[]">
+                        <i class="fas fa-plus fa-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="text" class="form-control" id="genres" name="genres[]" placeholder="Enter genres">
+            <div id="genresContainer"></div>
+        </div>
+        <div class="form-group col-md-6">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label class="mr-5">Languages</label>
+                </div>
+                <div class="col-md-9">
+                    <button class="btn add-language-btn py-1 add-btn" type="button" data-container-id="languagesContainer" data-input-name="language[]" data-container-id="languagesContainer" data-input-name="language[]">
+                        <i class="fas fa-plus fa-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="text" class="form-control" id="languages" name="languages[]" placeholder="Enter languages">
+            <div id="languagesContainer"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label class="mr-5">Directors</label>
+                </div>
+                <div class="col-md-9">
+                    <button class="btn add-director-btn py-1 add-btn" type="button" data-container-id="directorsContainer" data-input-name="director[]">
+                        <i class="fas fa-plus fa-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="text" class="form-control" id="directors" name="directors[]" placeholder="Enter directors">
+            <div id="directorsContainer"></div>
+        </div>
+        <div class="form-group col-md-6">
+          <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label class="mr-5">Casts</label>
+                </div>
+                <div class="col-md-9">
+                    <button class="btn add-cast-btn py-1 add-btn" type="button" data-container-id="castsContainer" data-input-name="cast[]">
+                        <i class="fas fa-plus fa-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="text" class="form-control" id="casts" name="casts[]" placeholder="Enter casts">
+            <div id="castsContainer"></div>
+        </div>
+      </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label class="mr-5">Country</label>
+                    </div>
+                    <div class="col-md-9">
+                        <button class="btn add-countries-btn py-1 add-btn" type="button" data-container-id="countriesContainer" data-input-name="countries[]">
+                            <i class="fas fa-plus fa-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <input type="text" class="form-control" id="countries" name="countries[]" placeholder="Enter countries">
+                <div id="countriesContainer"></div>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="year">Year</label>
+                <input type="number" class="form-control mt-3" id="year" name="year" placeholder="Enter year">
+            </div>
+        </div>
+      
+      <div class="form-row mb-4">
+        <div class="form-group col-md-6">
+          <label for="rated">Rated</label>
+          <input type="text" class="form-control" id="rated" name="rated" placeholder="Enter rated as">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="released">Release Date (YYYY-MM-DD)</label>
+            <input type="date" id="released" name="released" min="1870-01-01" max="2100-12-31" required>
+        </div>
+      </div>
+      
+        <div class="form-group mb-5">
+            <h5>IMDb</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="imdbRating">Rating</label>
+                    <input type="number" step="0.1" class="form-control" id="imdbRating" name="imdbRating" placeholder="Enter IMDb rating" min="0" max="10">
+                </div>
+                <div class="col-md-4">
+                    <label for="imdbVotes">Votes</label>
+                    <input type="number" class="form-control" id="imdbVotes" name="imdbVotes" placeholder="Enter IMDb votes">
+                </div>
+                <div class="col-md-4">
+                    <label for="imdbId">ID</label>
+                    <input type="number" class="form-control" id="imdbId" name="imdbId" placeholder="Enter IMDb ID">
+                </div>
+            </div>
+        </div>
+
+      <div class="form-group mb-5">
+            <h5>Awards</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="awardWins">Award Win</label>
+                    <input type="number" class="form-control" id="awardWins" name="awardWins" placeholder="Enter number of award wins">
+                </div>
+                <div class="col-md-4">
+                    <label for="awardNominations">Award Nominations</label>
+                    <input type="number" class="form-control" id="awardNominations" name="awardNominations" placeholder="Enter number of award nominations">
+                </div>
+                <div class="col-md-4">
+                    <label for="awardText">Award Text</label>
+                    <input type="text" class="form-control" id="awardText" name="awardText" placeholder="Enter award text">
+                </div>
+            </div>
+        </div>
+        <div class="form-group mb-5">
+            <h5>Tomatoes Viewer</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="viewerRating">Rating</label>
+                    <input type="number" step="0.1" class="form-control" id="viewerRating" name="viewerRating" placeholder="Enter viewer rating" min="0" max="10">
+                </div>
+                <div class="col-md-4">
+                    <label for="viewerNumReviews">Number of Reviews</label>
+                    <input type="number" class="form-control" id="viewerNumReviews" name="viewerNumReviews" placeholder="Enter number of viewer reviews">
+                </div>
+                <div class="col-md-4">
+                    <label for="viewerMeter">Meter</label>
+                    <input type="number" class="form-control" id="viewerMeter" name="viewerMeter" placeholder="Enter viewer meter">
+                </div>
+            </div>
+        </div>
+
+<div class="form-group mb-5">
+    <h5>Tomatoes Critic</h5>
+    <hr>
+    <div class="row">
+        <div class="col-md-4">
+            <label for="criticRating">Rating</label>
+            <input type="number" step="0.1" class="form-control" id="criticRating" name="criticRating" placeholder="Enter critic rating" min="0" max="10">
+        </div>
+        <div class="col-md-4">
+            <label for="criticNumReviews">Number of Reviews</label>
+            <input type="number" class="form-control" id="criticNumReviews" name="criticNumReviews" placeholder="Enter number of critic reviews">
+        </div>
+        <div class="col-md-4">
+            <label for="criticMeter">Meter</label>
+            <input type="number" class="form-control" id="criticMeter" name="criticMeter" placeholder="Enter critic meter">
+        </div>
+    </div>
+</div>
+
+<div class="form-group mb-5">
+    <h5>Tomatoes Others</h5>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="tomatoesFresh">Fresh</label>
+            <input type="number" class="form-control" id="tomatoesFresh" name="tomatoesFresh" placeholder="Enter fresh rating">
+        </div>
+        <div class="col-md-6">
+            <label for="tomatoesRotten">Rotten</label>
+            <input type="number" class="form-control" id="tomatoesRotten" name="tomatoesRotten" placeholder="Enter rotten rating">
+        </div>
+    </div>
+</div>
+
+      
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+  </div>
+
+<!-- Include Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('released').max = today;
+    const currentYear = new Date(today).getFullYear();
+    document.getElementById('year').max = currentYear;
+
+    const addInputBtns = document.querySelectorAll('.add-btn');
+
+    addInputBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const containerId = this.dataset.containerId;
+            const inputName = this.dataset.inputName;
+            addInputField(containerId, inputName);
+        });
+    });
+
+    const addInputField = (containerId, inputName) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const inputGroup = document.createElement('div');
+        inputGroup.className = 'input-group';
+        inputGroup.innerHTML = `
+            <input type="text" class="form-control" name="${inputName}" placeholder="Enter value">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary remove-input-btn" type="button">Remove</button>
+            </div>
+        `;
+        container.appendChild(inputGroup);
+    };
+
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('remove-input-btn')) {
+            const inputGroup = event.target.closest('.input-group');
+            if (inputGroup) {
+                inputGroup.remove();
+            }
+        }
+    });
+});
+
+</script>
+

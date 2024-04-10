@@ -1,0 +1,57 @@
+<div class="container signup-container">
+    <div class="signup-header">
+      <h2>Sign Up</h2>
+    </div>
+    <div class="signup-form">
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email">
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" id="username" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" placeholder="Enter password">
+        </div>
+        <button type="submit" class="btn btn-block btn-success">Sign Up</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const signupForm = document.getElementById('signupForm');
+
+    signupForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, username, password })
+        });
+
+        if (response.ok) {
+          alert('Signup successful! You can now login.');
+          window.location.href = '/login'; // Redirect to login page after successful signup
+        } else {
+          const data = await response.json();
+          alert(`Signup failed: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('Signup failed:', error);
+        alert('Signup failed. Please try again later.');
+      }
+    });
+  });
+</script>

@@ -1,0 +1,51 @@
+    <div class="container login-container">
+    <div class="login-header">
+      <h2>Login</h2>
+    </div>
+    <div class="login-form">
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" id="username" placeholder="Enter username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" placeholder="Enter password">
+        </div>
+        <button type="submit" class="btn btn-block btn-success">Login</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+
+            loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    if (response.ok) {
+                        const { token } = await response.json();
+                        localStorage.setItem('token', token);
+                        window.location.href = '/';
+                    } else {
+                        console.error('Login failed:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Login failed:', error);
+                }
+            });
+        });
+</script>
