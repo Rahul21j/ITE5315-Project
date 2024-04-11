@@ -219,7 +219,6 @@ app.get("/api/Movies", async (req, res) => {
         nextPage: page < totalPages ? page + 1 : null,
       },
     };
-
     if (req.xhr) {
       return res.json(data);
     }

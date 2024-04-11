@@ -85,7 +85,7 @@
         {{/if}}
         {{#each pagination.paginationArray}}
         <li class="page-item {{#if this.isCurrent}}active{{/if}}"><a class="page-link"
-            href="?page={{this.pageNumber}}&perPage={{pagination.perPage}}&title={{title}}">{{this.pageNumber}}</a></li>
+            href="?page={{this.pageNumber}}&perPage={{../pagination.perPage}}&title={{../title}}">{{this.pageNumber}}</a></li>
         {{/each}}
         {{#if (lt pagination.currentPage pagination.totalPages)}}
         <li class="page-item"><a class="page-link"
