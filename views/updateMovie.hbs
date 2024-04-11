@@ -301,6 +301,10 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('released').max = today;
+        const currentYear = new Date(today).getFullYear();
+        document.getElementById('year').max = currentYear;
         const expressDate = new Date("{{ movie.released }}");
         const month = expressDate.getMonth() + 1;
         const day = expressDate.getDate();

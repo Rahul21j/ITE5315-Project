@@ -252,9 +252,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('released').max = today;
+        document.getElementById('released').max = document.getElementById('released').defaultValue = today;
+
         const currentYear = new Date(today).getFullYear();
-        document.getElementById('year').max = currentYear;
+        document.getElementById('year').max = document.getElementById('year').value = currentYear;
+        
 
         const addInputBtns = document.querySelectorAll('.add-btn');
 
