@@ -1,3 +1,4 @@
+{{#if user}}
 <h1>{{pageTitle}}</h1>
 
 <style>
@@ -269,4 +270,18 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 </script>
+{{/if}}
 
+{{#unless user}}
+<style>
+    footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+</style>
+<h2>You are not authorized to view this page. Please login first.</h2>
+{{/unless}}

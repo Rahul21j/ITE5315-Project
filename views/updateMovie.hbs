@@ -1,3 +1,4 @@
+{{#if user}}
 <h1>{{pageTitle}}</h1>
 
 <style>
@@ -374,28 +375,40 @@
 
         const id = event.target.getAttribute('action').split('/').pop();
 
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/movies/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(formData)
-            });
+       try {
+    const response = await fetch(`/api/movies/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    });
 
-            if (response.ok) {
-                console.log('Movie updated successfully');
-                document.location.replace('/');
-            } else {
-                console.error('Failed to update movie');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    if (response.ok) {
+        document.location.replace(`/api/Movies/${id}`);
+    } else {
+        console.error('Failed to update movie');
+    }
+} catch (error) {
+    console.error('Error:', error);
+}
     });
     
 </script>
 
 
+{{/if}}
+
+{{#unless user}}
+<style>
+    footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+</style>
+<h2>You are not authorized to view this page. Please login first.</h2>
+{{/unless}}

@@ -1,3 +1,8 @@
+<style>
+    .nav-link {
+        color: white !important;
+    }
+</style>
 <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -7,21 +12,26 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    {{!-- <li class="nav-item active">
-                        <button type="button" class="btn-info">
-                            <a class="nav-link" href="/signup">Signup <span class="sr-only">(current)</span></a>
-                        </button>
-                    </li> --}}
-                    <li class="nav-item">
-                        <button type="button" class="btn-info">
-                            <a class="nav-link" href="/signup">Signup</a>
+                    
+                   {{#unless user}}
+                    <li class="nav-item mx-2">
+                        <button type="button" class="btn btn-success btn-sm">
+                            <a class="nav-link fw-bold" href="/signup">Signup</a>
                         </button>
                     </li>
-                    <li class="nav-item">
-                        <button type="button" class="btn-info">
-                            <a class="nav-link" href="/login">Login</a>
+                    <li class="nav-item mx-2">
+                        <button type="button" class="btn btn-success btn-sm">
+                            <a class="nav-link fw-bold" href="/login">Login</a>
                         </button>
                     </li>
+                    {{/unless}}
+                    {{#if user}}
+                        <li class="nav-item mx-2">
+                            <button id="logoutBtn" type="button" class="btn btn-success btn-sm">
+                                <a class="nav-link fw-bold" href="/logout">Logout</a>
+                            </button>
+                        </li>
+                     {{/if}}
                 </ul>
             </div>
         </div>

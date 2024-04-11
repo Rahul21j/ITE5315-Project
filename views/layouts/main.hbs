@@ -5,6 +5,11 @@
     {{!-- <link rel='stylesheet' href='/stylesheets/style.css' /> --}}
     <!-- Add Bootstrap CSS CDN link -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+      background-color: #e5e4e2; /* Light gray */
+    }
+    </style>
 </head>
 <body>
     {{> navbar}}
@@ -17,5 +22,33 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener to the logout button
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+});
+
+function logout() {
+    fetch('/logout', {
+        method: 'POST',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.href = '/login';
+        } else {
+            throw new Error('Logout failed');
+        }
+    })
+    .catch(error => {
+        console.error('Logout error:', error);
+    });
+}
+
+
+    </script>
 </body>
 </html>

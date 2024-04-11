@@ -70,6 +70,16 @@ async function addNewUser(data) {
   }
 }
 
+async function userExists(username, email) {
+  try {
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    return existingUser ? true : false;
+  } catch (error) {
+    console.error('Error checking if user exists:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   initialize,
   addNewMovie,
@@ -77,5 +87,6 @@ module.exports = {
   getMovieById,
   updateMovieById,
   deleteMovieById,
-  addNewUser
+  addNewUser,
+  userExists
 };

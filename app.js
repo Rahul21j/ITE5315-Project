@@ -1,8 +1,8 @@
 require('dotenv').config()
 var express  = require('express');
 var database = require('./config/database');
-var mongoose = require('mongoose');
 var app      = express();
+const cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');         
 const exphbs = require("express-handlebars");
 
@@ -14,6 +14,28 @@ app.use(cors());
 app.use(bodyParser.urlencoded({'extended':'true'}));            
 app.use(bodyParser.json());                                     
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); 
+app.use(cookieParser());
+
+
+app.use((req, res, next) => {
+  const token = req.cookies.token;
+
+  if (token) {
+      try {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          res.locals.user = decoded;
+      } catch (error) {
+          // Token is invalid
+          res.locals.user = null;
+      }
+  } else {
+      // No token provided
+      res.locals.user = null;
+  }
+
+  next();
+});
+
 
 const dbConnectionString = process.env.DB_CONNECTION_STRING;
 
@@ -50,36 +72,23 @@ app.engine(
 );
   
 app.set("view engine", "hbs");
-// mongoose.connect(database.url);
-// console.log("--------------------------------------------------------------------------------");
-// console.log("Connection established: " + database.url);
-// console.log("--------------------------------------------------------------------------------");
 
 const Movie = require('./models/movies');
 const User = require('./models/users');
 
-const user= {
-  staticUsername : 'admin',
-  staticPassword : 'admin'
-}
 async function authenticateUser(req, res, next) {
-  const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
+  const token = req.cookies.token;
 
   if (!token) {
-      return res.status(401).json({ message: 'Unauthorized: No token provided' });
+    return res.status(401).json({ message: 'Unauthorized: No token provided' });
   }
 
   try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      // const user = await User.findById(decoded.userId);
-
-      if (!user) {
-          return res.status(401).json({ message: 'Unauthorized: Invalid token' });
-      }
-      req.user = user;
-      next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
   } catch (error) {
-      return res.status(401).json({ message: 'Access denied!' });
+    return res.status(401).json({ message: 'Access denied!' });
   }
 }
 
@@ -91,25 +100,66 @@ app.get('/signup', (req, res) => {
   res.render("signup");
 });
 
-app.get('/login', (req, res) => {
-  res.render("login");
-});
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  if (username === user.staticUsername && password === user.staticPassword) {
-      const token = generateToken(user);
-      return res.status(200).json({ token });
-  } else {
-      return res.status(401).json({ message: 'Invalid username or password' });
+app.post('/signup', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  try {
+    const userAlreadyExists = await database.userExists(username, email);
+    if (userAlreadyExists) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await database.addNewUser({ username, email, password: hashedPassword });
+    res.status(201).json({ message: 'User signed up successfully', user: newUser });
+
+  } catch (error) {
+    console.error('Error signing up user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
+app.get('/login', (req, res) => {
+  res.render("login");
+});
+
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await User.findOne({ username });
+    if (user) {
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (passwordMatch) {
+        // Generate token if password is correct
+        const token = generateToken({ username: user.username, email: user.email });
+        // Set token as cookie
+        res.cookie('token', token, { httpOnly: true, maxAge: 3600000 }); // Expires in 1 hour
+        return res.status(200).json({ token });
+      } else {
+        return res.status(401).json({ error: 'Invalid password' });
+      }
+    } else {
+      return res.status(401).json({ error: 'Invalid username' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({ message: 'Logged out successfully' });
+});
 
 app.get('/', (req, res) => {
     const data = {
         pageTitle: 'Movies'
     };
-    res.redirect("/api/Movies?page=1&perPage=8&title=")
+    res.redirect("/signup")
 });
 
 const maxPagesToShow = 15; 
@@ -227,7 +277,7 @@ app.post('/api/Movies', async (req, res) => {
       }
     });
     const savedMovie = await database.addNewMovie(movie);
-    return redirect("/");
+    return redirect("/api/Movies?page=1&perPage=8&title=");
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -246,7 +296,6 @@ app.get('/api/Movies/:id', async (req, res) => {
 
 // Route to display update data form
 app.get('/api/Movies/:id/update', async (req, res) => {
-  console.log(req.params.id);
   const movieId = req.params.id;
   try {
       const movie = await Movie.findById(movieId);
