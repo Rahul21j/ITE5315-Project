@@ -1,55 +1,55 @@
 <style>
-    footer {
+  footer {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     padding: 10px;
     text-align: center;
-}
-/* Custom CSS for the signup form */
-.signup-container {
-  margin-top: 50px;
-  padding: 20px;
-}
+  }
 
-.signup-header h2 {
-  color: #007bff;
-}
+  /* Custom CSS for the signup form */
+  .signup-container {
+    margin-top: 50px;
+    padding: 20px;
+  }
 
-.signup-form {
-  max-width: 400px;
-  margin: 0 auto;
-}
+  .signup-header h2 {
+    color: #007bff;
+  }
 
-.signup-form .form-group label {
-  font-weight: bold;
-}
+  .signup-form {
+    max-width: 400px;
+    margin: 0 auto;
+  }
 
-.signup-form input[type="email"],
-.signup-form input[type="text"],
-.signup-form input[type="password"] {
-  border-radius: 20px;
-}
+  .signup-form .form-group label {
+    font-weight: bold;
+  }
 
-.signup-form button[type="submit"] {
-  border-radius: 20px;
-}
+  .signup-form input[type="email"],
+  .signup-form input[type="text"],
+  .signup-form input[type="password"] {
+    border-radius: 20px;
+  }
 
-.signup-form button[type="submit"]:hover {
-  background-color: #007bff;
-}
+  .signup-form button[type="submit"] {
+    border-radius: 20px;
+  }
 
-.signup-form .form-group:not(:last-child) {
-  margin-bottom: 20px;
-}
+  .signup-form button[type="submit"]:hover {
+    background-color: #007bff;
+  }
 
+  .signup-form .form-group:not(:last-child) {
+    margin-bottom: 20px;
+  }
 </style>
 <div class="container signup-container">
   <div class="signup-form">
-  <div class="signup-header mb-5">
-    <h2>Sign Up</h2>
-  </div>
+    <div class="signup-header mb-5">
+      <h2>Sign Up</h2>
+    </div>
     <form id="signupForm">
       <div class="form-group">
         <label for="email">Email</label>
@@ -69,7 +69,7 @@
 </div>
 
 
-  <script>
+<script>
   document.addEventListener('DOMContentLoaded', function () {
     const signupForm = document.getElementById('signupForm');
 

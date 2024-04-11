@@ -1,50 +1,55 @@
 <style>
-    .pagination {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .pagination li {
-      list-style: none;
-      margin: 0 5px;
-    }
-    .pagination li a {
-      text-decoration: none;
-      padding: 5px 10px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-    }
-    .pagination li.active a {
-      background-color: #007bff;
-      color: #fff;
-      border-color: #007bff;
-    }
-    .poster{
-      max-height: 350px;
-      min-height: 350px;
-    }
-    .movie-title{
-      height: 25px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      cursor: default;
-    }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .pagination li {
+    list-style: none;
+    margin: 0 5px;
+  }
+
+  .pagination li a {
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+
+  .pagination li.active a {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+  }
+
+  .poster {
+    max-height: 350px;
+    min-height: 350px;
+  }
+
+  .movie-title {
+    height: 25px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: default;
+  }
 </style>
 
 <h1>{{pageTitle}}</h1>
 <div class="container mb-4 p-0">
   <div class="col-md-3 mb-4">
-      <label for="perPage">Movies Per Page:</label>
-      <select id="perPage" name="perPage" class="form-control"> <!-- Add 'form-control' class for Bootstrap styling -->
-        <option value="8" selected>8</option>
-        <option value="12">12</option>
-        <option value="16">16</option>
-        <option value="20">20</option>
-        <option value="24">24</option>
-      </select>
-      <input type="hidden" name="page" value="{{pagination.currentPage}}">
-      <input type="hidden" name="title" value="{{title}}">
+    <label for="perPage">Movies Per Page:</label>
+    <select id="perPage" name="perPage" class="form-control"> <!-- Add 'form-control' class for Bootstrap styling -->
+      <option value="8" selected>8</option>
+      <option value="12">12</option>
+      <option value="16">16</option>
+      <option value="20">20</option>
+      <option value="24">24</option>
+    </select>
+    <input type="hidden" name="page" value="{{pagination.currentPage}}">
+    <input type="hidden" name="title" value="{{title}}">
   </div>
 </div>
 
@@ -52,17 +57,20 @@
 <div class="container" id="moviesContainer">
   <div class="row">
     {{#each movies}}
-      <div class="col-md-3">
-        <a href="/api/Movies/{{getProperty "_id"}}">
-          <div class="card shadow mb-4">
-            <img class="poster" src="{{getProperty "poster"}}" onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';" class="card-img-top" alt="Movie Poster">
-            <div class="card-body">
-              <h5 class="card-title text-center movie-title" title="{{getProperty "title"}}"> {{getProperty "title"}} ({{getProperty "year"}})</h5>
-              <p class="card-text text-center">IMDb Rating: {{getProperty "imdb"}}/10</p>
-            </div>
+    <div class="col-md-3">
+      <a href="/api/Movies/{{getProperty " _id"}}">
+        <div class="card shadow mb-4">
+          <img class="poster" src="{{getProperty " poster"}}"
+            onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';"
+            class="card-img-top" alt="Movie Poster">
+          <div class="card-body">
+            <h5 class="card-title text-center movie-title" title="{{getProperty " title"}}"> {{getProperty "title"}}
+              ({{getProperty "year"}})</h5>
+            <p class="card-text text-center">IMDb Rating: {{getProperty "imdb"}}/10</p>
           </div>
-        </a>
-      </div>
+        </div>
+      </a>
+    </div>
     {{/each}}
   </div>
 </div>
@@ -73,13 +81,16 @@
     <nav aria-label="Page navigation">
       <ul id="pagination" class="pagination">
         {{#if (gt pagination.currentPage 1)}}
-          <li class="page-item"><a class="page-link" href="?page={{pagination.previousPage}}&perPage={{pagination.perPage}}&title={{title}}">Previous</a></li>
+        <li class="page-item"><a class="page-link"
+            href="?page={{pagination.previousPage}}&perPage={{pagination.perPage}}&title={{title}}">Previous</a></li>
         {{/if}}
         {{#each pagination.paginationArray}}
-            <li class="page-item {{#if this.isCurrent}}active{{/if}}"><a class="page-link" href="?page={{this.pageNumber}}&perPage={{pagination.perPage}}&title={{title}}">{{this.pageNumber}}</a></li>
+        <li class="page-item {{#if this.isCurrent}}active{{/if}}"><a class="page-link"
+            href="?page={{this.pageNumber}}&perPage={{pagination.perPage}}&title={{title}}">{{this.pageNumber}}</a></li>
         {{/each}}
         {{#if (lt pagination.currentPage pagination.totalPages)}}
-          <li class="page-item"><a class="page-link" href="?page={{pagination.nextPage}}&perPage={{pagination.perPage}}&title={{title}}">Next</a></li>
+        <li class="page-item"><a class="page-link"
+            href="?page={{pagination.nextPage}}&perPage={{pagination.perPage}}&title={{title}}">Next</a></li>
         {{/if}}
       </ul>
     </nav>
@@ -88,29 +99,29 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-  // Function to load movies and pagination
-  // Parse the URL to get the value of perPage
-  const urlParams = new URLSearchParams(window.location.search);
-  const page = urlParams.get('page');
-  let perPage = urlParams.get('perPage');
+  $(document).ready(function () {
+    // Function to load movies and pagination
+    // Parse the URL to get the value of perPage
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get('page');
+    let perPage = urlParams.get('perPage');
 
-  // Find the <option> element with the value equal to perPageFromUrl and set it as selected
-  $(`#perPage option[value="${perPage}"]`).prop('selected', true);
+    // Find the <option> element with the value equal to perPageFromUrl and set it as selected
+    $(`#perPage option[value="${perPage}"]`).prop('selected', true);
 
-  function loadMoviesAndPagination(url) {
-    const urlParams = new URLSearchParams(url);
-    perPage = urlParams.get('perPage');
-    $.ajax({
-      url: url,
-      type: 'GET',
-      success: function(data) {
-        $('#moviesContainer').empty();
-        $('#pagination').empty();
+    function loadMoviesAndPagination(url) {
+      const urlParams = new URLSearchParams(url);
+      perPage = urlParams.get('perPage');
+      $.ajax({
+        url: url,
+        type: 'GET',
+        success: function (data) {
+          $('#moviesContainer').empty();
+          $('#pagination').empty();
 
-        var movieHtml = `<div class="row">`;
-        data.movies.forEach(function(movie) {
-          movieHtml += `
+          var movieHtml = `<div class="row">`;
+          data.movies.forEach(function (movie) {
+            movieHtml += `
             <div class="col-md-3">
               <a href="/api/Movies/${movie._id}">
                 <div class="card shadow mb-4">
@@ -123,56 +134,56 @@
               </a>
             </div>
           `;
-        });
-        movieHtml += `</div>`;
-        $('#moviesContainer').append(movieHtml);
+          });
+          movieHtml += `</div>`;
+          $('#moviesContainer').append(movieHtml);
 
-        // Add previous page link
-        if (data.pagination.previousPage) {
-          $('#pagination').prepend(`
+          // Add previous page link
+          if (data.pagination.previousPage) {
+            $('#pagination').prepend(`
             <li class="page-item">
               <a class="page-link" href="?page=${data.pagination.previousPage}&title=${data.title || ''}&perPage=${perPage}">Previous</a>
             </li>
           `);
-        }
+          }
 
-        // Add pagination links
-        data.pagination.paginationArray.forEach(function(pageItem) {
-          var pageHtml = `
+          // Add pagination links
+          data.pagination.paginationArray.forEach(function (pageItem) {
+            var pageHtml = `
             <li class="page-item ${pageItem.isCurrent ? 'active' : ''}">
               <a class="page-link" href="?page=${pageItem.pageNumber}&title=${data.title || ''}&perPage=${perPage}">${pageItem.pageNumber}</a>
             </li>
           `;
-          $('#pagination').append(pageHtml);
-        });
+            $('#pagination').append(pageHtml);
+          });
 
-        // Add next page link
-        if (data.pagination.nextPage) {
-          $('#pagination').append(`
+          // Add next page link
+          if (data.pagination.nextPage) {
+            $('#pagination').append(`
             <li class="page-item">
               <a class="page-link" href="?page=${data.pagination.nextPage}&title=${data.title || ''}&perPage=${perPage}">Next</a>
             </li>
           `);
+          }
+
+          window.history.pushState({}, '', url);
+        },
+        error: function (xhr, status, error) {
+          console.error('Error:', error);
         }
+      });
+    }
 
-        window.history.pushState({}, '', url);
-      },
-      error: function(xhr, status, error) {
-        console.error('Error:', error);
-      }
+    // Event listener for select change
+    $('#perPage').change(function () {
+      var value = $(this).val();
+      var currentPage = "{{pagination.currentPage}}";
+      var title = "{{title}}";
+      var currentUrl = window.location.href;
+      var newUrl = currentUrl.replace(/&?perPage(?:\=\d+)?/g, '') + `&perPage=${value}`;
+      loadMoviesAndPagination(newUrl);
     });
-  }
-
-  // Event listener for select change
-  $('#perPage').change(function() {
-    var value = $(this).val();
-    var currentPage = "{{pagination.currentPage}}";
-    var title = "{{title}}";
-    var currentUrl = window.location.href;
-    var newUrl = currentUrl.replace(/&?perPage(?:\=\d+)?/g, '') + `&perPage=${value}`;
-    loadMoviesAndPagination(newUrl);
   });
-});
 
 
 </script>

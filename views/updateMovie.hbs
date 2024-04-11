@@ -2,133 +2,146 @@
 <h1>{{pageTitle}}</h1>
 
 <style>
-    .add-btn{
-        box-shadow: 0 0 0 .05rem rgba(0,123,255,.25);
+    .add-btn {
+        box-shadow: 0 0 0 .05rem rgba(0, 123, 255, .25);
     }
-    #addMovie{
-        background-color:khaki;
+
+    #addMovie {
+        background-color: khaki;
     }
 </style>
 <div id="addMovie" class="container">
     <form id="updateForm" action="/api/Movies/{{movieId}}">
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label for="title">Title</label>
-          <input type="text" class="form-control" id="title" name="title" value="{{movie.title}}" required>
-        </div>
-        <div class="form-group col-md-4">
-          <label for="runtime">Runtime</label>
-          <input type="number" class="form-control" id="runtime" name="runtime" value="{{movie.runtime}}">
-        </div>
-        <div class="form-group col-md-4">
-            <label for="type">Type</label>
-            <input type="text" class="form-control" id="type" name="type" value="{{movie.type}}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="plot">Plot</label>
-        <textarea class="form-control" id="plot" rows="3" name="plot" placeholder="Enter plot" required>{{movie.plot}}</textarea>
-      </div>
-      <div class="form-group">
-        <label for="poster">Poster URL</label>
-        <input type="url" class="form-control" id="poster" name="poster" value="{{movie.poster}}" placeholder="Enter poster URL">
-      </div>
-      <div class="form-group">
-        <label for="fullplot">Full Plot</label>
-        <textarea class="form-control" id="fullplot" name="fullplot" rows="5" placeholder="Enter full plot">{{movie.fullplot}}</textarea>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label class="mr-5">Genres</label>
-                </div>
-                <div class="col-md-9">
-                    <button class="btn add-genre-btn py-1 add-btn" type="button" data-container-id="genresContainer" data-input-name="genre[]">
-                        <i class="fas fa-plus fa-xl"></i>
-                    </button>
-                </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title" value="{{movie.title}}" required>
             </div>
-            <div id="genresContainer">
-                {{#each movie.genres}}
+            <div class="form-group col-md-4">
+                <label for="runtime">Runtime</label>
+                <input type="number" class="form-control" id="runtime" name="runtime" value="{{movie.runtime}}">
+            </div>
+            <div class="form-group col-md-4">
+                <label for="type">Type</label>
+                <input type="text" class="form-control" id="type" name="type" value="{{movie.type}}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="plot">Plot</label>
+            <textarea class="form-control" id="plot" rows="3" name="plot" placeholder="Enter plot"
+                required>{{movie.plot}}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="poster">Poster URL</label>
+            <input type="url" class="form-control" id="poster" name="poster" value="{{movie.poster}}"
+                placeholder="Enter poster URL">
+        </div>
+        <div class="form-group">
+            <label for="fullplot">Full Plot</label>
+            <textarea class="form-control" id="fullplot" name="fullplot" rows="5"
+                placeholder="Enter full plot">{{movie.fullplot}}</textarea>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label class="mr-5">Genres</label>
+                    </div>
+                    <div class="col-md-9">
+                        <button class="btn add-genre-btn py-1 add-btn" type="button" data-container-id="genresContainer"
+                            data-input-name="genre[]">
+                            <i class="fas fa-plus fa-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="genresContainer">
+                    {{#each movie.genres}}
                     <div class="input-group">
-                        <input type="text" class="form-control" value="{{this}}" name="genre[]" placeholder="Enter value">
+                        <input type="text" class="form-control" value="{{this}}" name="genre[]"
+                            placeholder="Enter value">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary remove-input-btn" type="button">Remove</button>
                         </div>
                     </div>
-                {{/each}}
-            </div>
-        </div>
-        <div class="form-group col-md-6">
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label class="mr-5">Languages</label>
-                </div>
-                <div class="col-md-9">
-                    <button class="btn add-language-btn py-1 add-btn" type="button" data-container-id="languagesContainer" data-input-name="language[]" data-container-id="languagesContainer" data-input-name="language[]">
-                        <i class="fas fa-plus fa-xl"></i>
-                    </button>
+                    {{/each}}
                 </div>
             </div>
-            <div id="languagesContainer">
-                {{#each movie.languages}}
+            <div class="form-group col-md-6">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label class="mr-5">Languages</label>
+                    </div>
+                    <div class="col-md-9">
+                        <button class="btn add-language-btn py-1 add-btn" type="button"
+                            data-container-id="languagesContainer" data-input-name="language[]"
+                            data-container-id="languagesContainer" data-input-name="language[]">
+                            <i class="fas fa-plus fa-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="languagesContainer">
+                    {{#each movie.languages}}
                     <div class="input-group">
-                        <input type="text" class="form-control" value="{{this}}" name="language[]" placeholder="Enter value">
+                        <input type="text" class="form-control" value="{{this}}" name="language[]"
+                            placeholder="Enter value">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary remove-input-btn" type="button">Remove</button>
                         </div>
                     </div>
-                {{/each}}
+                    {{/each}}
+                </div>
             </div>
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-            <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label class="mr-5">Directors</label>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label class="mr-5">Directors</label>
+                    </div>
+                    <div class="col-md-9">
+                        <button class="btn add-director-btn py-1 add-btn" type="button"
+                            data-container-id="directorsContainer" data-input-name="director[]">
+                            <i class="fas fa-plus fa-xl"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-9">
-                    <button class="btn add-director-btn py-1 add-btn" type="button" data-container-id="directorsContainer" data-input-name="director[]">
-                        <i class="fas fa-plus fa-xl"></i>
-                    </button>
-                </div>
-            </div>
-            <div id="directorsContainer">
-                {{#each movie.directors}}
+                <div id="directorsContainer">
+                    {{#each movie.directors}}
                     <div class="input-group">
-                        <input type="text" class="form-control" value="{{this}}" name="director[]" placeholder="Enter value">
+                        <input type="text" class="form-control" value="{{this}}" name="director[]"
+                            placeholder="Enter value">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary remove-input-btn" type="button">Remove</button>
                         </div>
                     </div>
-                {{/each}}
-            </div>
-        </div>
-        <div class="form-group col-md-6">
-          <div class="form-row">
-                <div class="form-group col-md-3">
-                    <label class="mr-5">Casts</label>
-                </div>
-                <div class="col-md-9">
-                    <button class="btn add-cast-btn py-1 add-btn" type="button" data-container-id="castsContainer" data-input-name="cast[]">
-                        <i class="fas fa-plus fa-xl"></i>
-                    </button>
+                    {{/each}}
                 </div>
             </div>
-            <div id="castsContainer">
-                {{#each movie.cast}}
+            <div class="form-group col-md-6">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label class="mr-5">Casts</label>
+                    </div>
+                    <div class="col-md-9">
+                        <button class="btn add-cast-btn py-1 add-btn" type="button" data-container-id="castsContainer"
+                            data-input-name="cast[]">
+                            <i class="fas fa-plus fa-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="castsContainer">
+                    {{#each movie.cast}}
                     <div class="input-group">
-                        <input type="text" class="form-control" value="{{this}}" name="cast[]" placeholder="Enter value">
+                        <input type="text" class="form-control" value="{{this}}" name="cast[]"
+                            placeholder="Enter value">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary remove-input-btn" type="button">Remove</button>
                         </div>
                     </div>
-                {{/each}}
+                    {{/each}}
+                </div>
             </div>
         </div>
-      </div>
         <div class="form-row">
             <div class="form-group col-md-6">
                 <div class="form-row">
@@ -136,7 +149,8 @@
                         <label class="mr-5">Country</label>
                     </div>
                     <div class="col-md-9">
-                        <button class="btn add-countries-btn py-1 add-btn" type="button" data-container-id="countriesContainer" data-input-name="countries[]">
+                        <button class="btn add-countries-btn py-1 add-btn" type="button"
+                            data-container-id="countriesContainer" data-input-name="countries[]">
                             <i class="fas fa-plus fa-xl"></i>
                         </button>
                     </div>
@@ -144,65 +158,74 @@
                 <div id="countriesContainer">
                     {{#each movie.countries}}
                     <div class="input-group">
-                        <input type="text" class="form-control" value="{{this}}" name="countries[]" placeholder="Enter value">
+                        <input type="text" class="form-control" value="{{this}}" name="countries[]"
+                            placeholder="Enter value">
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary remove-input-btn" type="button">Remove</button>
                         </div>
                     </div>
-                {{/each}}
+                    {{/each}}
                 </div>
             </div>
             <div class="form-group col-md-6">
                 <label for="year">Year</label>
-                <input type="number" class="form-control mt-3" id="year" value="{{movie.year}}" name="year" placeholder="Enter year">
+                <input type="number" class="form-control mt-3" id="year" value="{{movie.year}}" name="year"
+                    placeholder="Enter year">
             </div>
         </div>
-      
-      <div class="form-row mb-4">
-        <div class="form-group col-md-6">
-          <label for="rated">Rated</label>
-          <input type="text" class="form-control" id="rated" value="{{movie.rated}}" name="rated" placeholder="Enter rated as">
+
+        <div class="form-row mb-4">
+            <div class="form-group col-md-6">
+                <label for="rated">Rated</label>
+                <input type="text" class="form-control" id="rated" value="{{movie.rated}}" name="rated"
+                    placeholder="Enter rated as">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="released">Release Date (YYYY-MM-DD)</label>
+                <input type="date" id="released" name="released" min="1870-01-01" max="2100-12-31" required>
+            </div>
         </div>
-        <div class="form-group col-md-6">
-            <label for="released">Release Date (YYYY-MM-DD)</label>
-            <input type="date" id="released" name="released" min="1870-01-01" max="2100-12-31" required>
-        </div>
-      </div>
-      
+
         <div class="form-group mb-5">
             <h5>IMDb</h5>
             <hr>
             <div class="row">
                 <div class="col-md-4">
                     <label for="imdbRating">Rating</label>
-                    <input type="number" step="0.1" class="form-control" id="imdbRating" value="{{movie.imdbRating}}" name="imdbRating" placeholder="Enter IMDb rating" min="0" max="10">
+                    <input type="number" step="0.1" class="form-control" id="imdbRating" value="{{movie.imdbRating}}"
+                        name="imdbRating" placeholder="Enter IMDb rating" min="0" max="10">
                 </div>
                 <div class="col-md-4">
                     <label for="imdbVotes">Votes</label>
-                    <input type="number" class="form-control" id="imdbVotes" value="{{movie.imdbVotes}}" name="imdbVotes" placeholder="Enter IMDb votes">
+                    <input type="number" class="form-control" id="imdbVotes" value="{{movie.imdbVotes}}"
+                        name="imdbVotes" placeholder="Enter IMDb votes">
                 </div>
                 <div class="col-md-4">
                     <label for="imdbId">ID</label>
-                    <input type="number" class="form-control" id="imdbId" value="{{movie.imdbId}}" name="imdbId" placeholder="Enter IMDb ID">
+                    <input type="number" class="form-control" id="imdbId" value="{{movie.imdbId}}" name="imdbId"
+                        placeholder="Enter IMDb ID">
                 </div>
             </div>
         </div>
 
-      <div class="form-group mb-5">
+        <div class="form-group mb-5">
             <h5>Awards</h5>
             <hr>
             <div class="row">
                 <div class="col-md-4">
                     <label for="awardWins">Award Win</label>
-                    <input type="number" class="form-control" id="awardWins" value="{{movie.awardsWins}}" name="awardWins" placeholder="Enter number of award wins">
+                    <input type="number" class="form-control" id="awardWins" value="{{movie.awardsWins}}"
+                        name="awardWins" placeholder="Enter number of award wins">
                 </div>
                 <div class="col-md-4">
                     <label for="awardNominations">Award Nominations</label>
-                    <input type="number" class="form-control" id="awardNominations" value="{{movie.awardsNominations}}" name="awardNominations" placeholder="Enter number of award nominations">
+                    <input type="number" class="form-control" id="awardNominations" value="{{movie.awardsNominations}}"
+                        name="awardNominations" placeholder="Enter number of award nominations">
                 </div>
                 <div class="col-md-4">
                     <label for="awardText">Award Text</label>
-                    <input type="text" class="form-control" id="awardText" value="{{movie.awardsText}}" name="awardText" placeholder="Enter award text">
+                    <input type="text" class="form-control" id="awardText" value="{{movie.awardsText}}" name="awardText"
+                        placeholder="Enter award text">
                 </div>
             </div>
         </div>
@@ -212,55 +235,65 @@
             <div class="row">
                 <div class="col-md-4">
                     <label for="viewerRating">Rating</label>
-                    <input type="number" step="0.1" class="form-control" id="viewerRating" value="{{movie.viewerRating}}" name="viewerRating" placeholder="Enter viewer rating" min="0" max="10">
+                    <input type="number" step="0.1" class="form-control" id="viewerRating"
+                        value="{{movie.viewerRating}}" name="viewerRating" placeholder="Enter viewer rating" min="0"
+                        max="10">
                 </div>
                 <div class="col-md-4">
                     <label for="viewerNumReviews">Number of Reviews</label>
-                    <input type="number" class="form-control" id="viewerNumReviews" value="{{movie.viewerNumReviews}}" name="viewerNumReviews" placeholder="Enter number of viewer reviews">
+                    <input type="number" class="form-control" id="viewerNumReviews" value="{{movie.viewerNumReviews}}"
+                        name="viewerNumReviews" placeholder="Enter number of viewer reviews">
                 </div>
                 <div class="col-md-4">
                     <label for="viewerMeter">Meter</label>
-                    <input type="number" class="form-control" id="viewerMeter" value="{{movie.viewerMeter}}" name="viewerMeter" placeholder="Enter viewer meter">
+                    <input type="number" class="form-control" id="viewerMeter" value="{{movie.viewerMeter}}"
+                        name="viewerMeter" placeholder="Enter viewer meter">
                 </div>
             </div>
         </div>
 
-<div class="form-group mb-5">
-    <h5>Tomatoes Critic</h5>
-    <hr>
-    <div class="row">
-        <div class="col-md-4">
-            <label for="criticRating">Rating</label>
-            <input type="number" step="0.1" class="form-control" id="criticRating" value="{{movie.criticRating}}" name="criticRating" placeholder="Enter critic rating" min="0" max="10">
+        <div class="form-group mb-5">
+            <h5>Tomatoes Critic</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="criticRating">Rating</label>
+                    <input type="number" step="0.1" class="form-control" id="criticRating"
+                        value="{{movie.criticRating}}" name="criticRating" placeholder="Enter critic rating" min="0"
+                        max="10">
+                </div>
+                <div class="col-md-4">
+                    <label for="criticNumReviews">Number of Reviews</label>
+                    <input type="number" class="form-control" id="criticNumReviews" value="{{movie.criticNumReviews}}"
+                        name="criticNumReviews" placeholder="Enter number of critic reviews">
+                </div>
+                <div class="col-md-4">
+                    <label for="criticMeter">Meter</label>
+                    <input type="number" class="form-control" id="criticMeter" value="{{movie.criticMeter}}"
+                        name="criticMeter" placeholder="Enter critic meter">
+                </div>
+            </div>
         </div>
-        <div class="col-md-4">
-            <label for="criticNumReviews">Number of Reviews</label>
-            <input type="number" class="form-control" id="criticNumReviews" value="{{movie.criticNumReviews}}" name="criticNumReviews" placeholder="Enter number of critic reviews">
-        </div>
-        <div class="col-md-4">
-            <label for="criticMeter">Meter</label>
-            <input type="number" class="form-control" id="criticMeter" value="{{movie.criticMeter}}" name="criticMeter" placeholder="Enter critic meter">
-        </div>
-    </div>
-</div>
 
-<div class="form-group mb-5">
-    <h5>Tomatoes Others</h5>
-    <hr>
-    <div class="row">
-        <div class="col-md-6">
-            <label for="tomatoesFresh">Fresh</label>
-            <input type="number" class="form-control" id="tomatoesFresh" value="{{movie.tomatoesFresh}}" name="tomatoesFresh" placeholder="Enter fresh rating">
+        <div class="form-group mb-5">
+            <h5>Tomatoes Others</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="tomatoesFresh">Fresh</label>
+                    <input type="number" class="form-control" id="tomatoesFresh" value="{{movie.tomatoesFresh}}"
+                        name="tomatoesFresh" placeholder="Enter fresh rating">
+                </div>
+                <div class="col-md-6">
+                    <label for="tomatoesRotten">Rotten</label>
+                    <input type="number" class="form-control" id="tomatoesRotten" value="{{movie.tomatoesRotten}}"
+                        name="tomatoesRotten" placeholder="Enter rotten rating">
+                </div>
+            </div>
         </div>
-        <div class="col-md-6">
-            <label for="tomatoesRotten">Rotten</label>
-            <input type="number" class="form-control" id="tomatoesRotten" value="{{movie.tomatoesRotten}}" name="tomatoesRotten" placeholder="Enter rotten rating">
-        </div>
-    </div>
-</div>
-      <button type="submit" class="btn btn-primary">Update</button>
+        <button type="submit" class="btn btn-primary">Update</button>
     </form>
-  </div>
+</div>
 
 <!-- Include Font Awesome CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -375,25 +408,25 @@
 
         const id = event.target.getAttribute('action').split('/').pop();
 
-       try {
-    const response = await fetch(`/api/movies/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
+        try {
+            const response = await fetch(`/api/movies/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                document.location.replace(`/api/Movies/${id}`);
+            } else {
+                console.error('Failed to update movie');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     });
 
-    if (response.ok) {
-        document.location.replace(`/api/Movies/${id}`);
-    } else {
-        console.error('Failed to update movie');
-    }
-} catch (error) {
-    console.error('Error:', error);
-}
-    });
-    
 </script>
 
 
@@ -402,13 +435,13 @@
 {{#unless user}}
 <style>
     footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-}
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+    }
 </style>
 <h2>You are not authorized to view this page. Please login first.</h2>
 {{/unless}}
