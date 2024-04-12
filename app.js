@@ -96,6 +96,14 @@ function generateToken(user) {
   return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h" });
 }
 
+const { validationResult, query } = require('express-validator');
+
+const validateQueryParams = [
+  query('page').notEmpty().isInt().toInt(),
+  query('perPage').notEmpty().isInt().toInt(),
+  query('title').optional().isString(),
+];
+
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
@@ -174,9 +182,24 @@ app.get("/", (req, res) => {
 
 const maxPagesToShow = 15;
 
-app.get("/api/Movies", async (req, res) => {
+app.get("/api/Movies", validateQueryParams, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const uniqueErrors = errors.array().filter((error, index, self) =>
+    index === self.findIndex((e) => (
+      e.msg === error.msg && e.path === error.path
+    ))
+  );
+  console.log(uniqueErrors);
+    return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
+  }
+
   const page = parseInt(req.query.page) || 1;
-  const perPage = parseInt(req.query.perPage) || 8;
+  var perPage = parseInt(req.query.perPage) || 8;
+  if (perPage % 8 !== 0) {
+    const nearestMultipleOf8 = Math.round(perPage / 8) * 8;
+    perPage = nearestMultipleOf8;
+  }
   const title = req.query.title || "";
 
   try {
@@ -380,7 +403,7 @@ app.get("/api/Movies/:id/update", async (req, res) => {
 });
 
 // Route to update data
-app.put("/api/Movies/:id", authenticateUser, async (req, res) => {
+app.put("/api/Movies/:id", async (req, res) => {
   const lastupdated = new Date();
   var movieUpdated = req.body;
   movieUpdated.lastupdated = movieUpdated.tomatoes.lastUpdated = lastupdated;
@@ -410,5 +433,46 @@ app.delete("/api/Movies/:id", authenticateUser, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+const { graphqlHTTP } = require('express-graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = require('graphql');
+
+// Define MovieType for GraphQL schema
+const MovieType = new GraphQLObjectType({
+  name: 'Movie',
+  fields: () => ({
+    id: { type: GraphQLString },
+    title: { type: GraphQLString },
+    // Define other fields here
+  })
+});
+
+// Define your GraphQL schema
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'Query',
+    fields: {
+      movies: {
+        type: new GraphQLList(MovieType),
+        args: {
+          page: { type: GraphQLInt },
+          perPage: { type: GraphQLInt },
+          title: { type: GraphQLString }
+        },
+        resolve: async (_, args) => {
+          const { page = 1, perPage = 8, title = '' } = args;
+          const movies = await database.getAllMovies(page, perPage, title);
+          return movies;
+        }
+      }
+    }
+  })
+});
+
+// Connect GraphQL to Express
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true // Enable GraphiQL interface for testing
+}));
 
 module.exports = app;

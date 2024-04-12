@@ -1,0 +1,18 @@
+<style>
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+    }
+</style>
+<h1>{{pageTitle}}:
+  <br />
+  {{#if errors}}
+    {{#each errors}}
+      <br /><h3>{{this.msg}} for {{this.path}} in {{this.location}}.</h3>
+    {{/each}}
+  {{/if}}
+</h1>

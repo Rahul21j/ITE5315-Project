@@ -38,19 +38,31 @@
 
 <h1>{{pageTitle}}</h1>
 <div class="container mb-4 p-0">
-  <div class="col-md-3 mb-4">
-    <label for="perPage">Movies Per Page:</label>
-    <select id="perPage" name="perPage" class="form-control"> <!-- Add 'form-control' class for Bootstrap styling -->
-      <option value="8" selected>8</option>
-      <option value="12">12</option>
-      <option value="16">16</option>
-      <option value="20">20</option>
-      <option value="24">24</option>
-    </select>
-    <input type="hidden" name="page" value="{{pagination.currentPage}}">
-    <input type="hidden" name="title" value="{{title}}">
+  <div class="row">
+    <div class="col-md-3 mb-4">
+      <label for="perPage">Movies Per Page:</label>
+      <select id="perPage" name="perPage" class="form-control"> <!-- Add 'form-control' class for Bootstrap styling -->
+        <option value="8" selected>8</option>
+        <option value="12">12</option>
+        <option value="16">16</option>
+        <option value="20">20</option>
+        <option value="24">24</option>
+      </select>
+      <input type="hidden" name="page" value="{{pagination.currentPage}}">
+      <input type="hidden" name="title" value="{{title}}">
+    </div>
+    <div class="col-md-3 mb-4">
+      <label for="goToPage">Go to Page:</label>
+      <div class="input-group">
+        <input type="number" id="goToPage" name="goToPage" class="form-control" min="1" value="{{pagination.currentPage}}">
+        <div class="input-group-append">
+          <button class="btn btn-primary" id="goToPageBtn">Go</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
 
 
 <div class="container" id="moviesContainer">
@@ -59,12 +71,12 @@
     <div class="col-md-3">
       <a href="/api/Movies/{{getProperty " _id"}}">
         <div class="card shadow mb-4">
-          <img class="poster" src="{{getProperty " poster"}}"
+          <img class="poster" src="{{getProperty "poster"}}"
             onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';"
             class="card-img-top" alt="Movie Poster">
           <div class="card-body">
-            <h5 class="card-title text-center movie-title" title="{{getProperty " title"}}"> {{getProperty "title"}}
-              ({{getProperty "year"}})</h5>
+            <h5 class="card-title text-center movie-title" title="{{getProperty " title"}}"> {{getProperty "title"}}</h5>
+            <h6 class="card-title text-center">({{getProperty "year"}})</h6>
             <p class="card-text text-center">IMDb Rating: {{getProperty "imdb"}}/10</p>
           </div>
         </div>
@@ -101,6 +113,7 @@
   $(document).ready(function () {
     // Function to load movies and pagination
     // Parse the URL to get the value of perPage
+    window.history.pushState({}, '', window.location.href.replace(/(perPage=)\d+/, `$1{{pagination.perPage}}`))
     const urlParams = new URLSearchParams(window.location.search);
     const page = urlParams.get('page');
     let perPage = urlParams.get('perPage');
@@ -126,7 +139,8 @@
                 <div class="card shadow mb-4">
                   <img class="poster" src="${movie.poster}" onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';" class="card-img-top" alt="Movie Poster">
                   <div class="card-body">
-                    <h5 class="card-title text-center movie-title" title="${movie.title}">${movie.title} (${movie.year})</h5>
+                    <h5 class="card-title text-center movie-title" title="${movie.title}">${movie.title}</h5>
+                    <h6 class="card-title text-center">(${movie.year})</h6>
                     <p class="card-text text-center">IMDb Rating: ${movie.imdb.rating}/10</p>
                   </div>
                 </div>
@@ -178,7 +192,15 @@
       var currentPage = "{{pagination.currentPage}}";
       var title = "{{title}}";
       var currentUrl = window.location.href;
-      var newUrl = currentUrl.replace(/&?perPage(?:\=\d+)?/g, '') + `&perPage=${value}`;
+      var newUrl = currentUrl.replace(/(perPage=)\d+/, `$1${value}`);
+      loadMoviesAndPagination(newUrl);
+    });
+
+    // Event listener for go to page button
+   $('#goToPageBtn').click(function () {
+      var pageNumber = $('#goToPage').val();
+      var currentUrl = window.location.href;
+      const newUrl = currentUrl.replace(/(page=)\d+/, `$1${pageNumber}`);
       loadMoviesAndPagination(newUrl);
     });
   });
