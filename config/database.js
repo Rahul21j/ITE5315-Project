@@ -67,6 +67,7 @@ async function updateMovieById(data, id) {
 async function deleteMovieById(id) {
   try {
     await Movie.findByIdAndDelete(id);
+    return { message: "Movie deleted" };
   } catch (error) {
     console.error("Error deleting movie by id:", error);
     throw error;

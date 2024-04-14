@@ -16,47 +16,41 @@
     .card-body {
         padding: 0.25rem;
     }
-
-    footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 10px;
-        text-align: center;
-    }
 </style>
-
+{{#if movie.title}}
 <div class="container pt-3">
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card mb-4 pb-2">
-                {{#each movies}}
-                {{#if this.title}}
+
                 <div class="card-header bg-success text-white">
-                    <h3 class="text-center">{{ this.title }} ({{ this.year }})</h3>
+                    <h3 class="text-center">{{ movie.title }} ({{ movie.year }})</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
-                            <img src="{{ this.poster }}" alt="Movie Poster" class="movie-poster"
-                                onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';">
+                            <img src="{{ movie.poster }}" alt="Movie Poster" class="movie-poster"
+                                onerror="movie.onerror=null;movie.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';">
                         </div>
                         <div class="col-md-8 movie-info">
-                            <p><strong>Plot:</strong> {{ this.fullplot }}</p>
-                            <p><strong>Runtime:</strong> {{ this.runtime }} minutes</p>
-                            <p><strong>Released:</strong> {{ this.released }}</p>
-                            <p><strong>IMDb Rating:</strong> {{ this.imdb.rating }}/10</p>
-                            <p><strong>Tomatoes Viewer Rating:</strong> {{ this.tomatoes.viewer.rating }}/5</p>
-                            <p><strong>Rated:</strong> {{ this.rated }}</p>
-                            <p><strong>Awards:</strong> {{ this.awards.wins }} wins, {{ this.awards.nominations }}
-                                nominations</p>
-                            <p><strong>Last Updated:</strong> {{ this.lastupdated }}</p>
+                            {{#if movie.fullplot}}<p><strong>Full Plot: </strong> {{movie.fullplot}}</p>{{/if}}
+                            {{#unless movie.fullplot}}<p><strong>Plot:</strong> {{ movie.plot }}</p>{{/unless}}
+                            {{#if movie.runtime}}<p><strong>Runtime:</strong> {{ movie.runtime }} minutes</p>{{/if}}
+                            {{#if movie.released}}<p><strong>Released:</strong> {{formatDate movie.released }}</p>
+                            {{/if}}
+                            {{#if movie.imdb.rating}}<p><strong>IMDb Rating:</strong> {{ movie.imdb.rating }}/10</p>
+                            {{/if}}
+                            {{#if movie.tomatoes.viewer.rating}}<p><strong>Tomatoes Viewer Rating:</strong> {{
+                                movie.tomatoes.viewer.rating }}/5</p>{{/if}}
+                            {{#if movie.rated}}<p><strong>Rated:</strong> {{ movie.rated }}</p>{{/if}}
+                            {{#if movie.awards}}<p><strong>Awards:</strong> {{ movie.awards.wins }} wins, {{
+                                movie.awards.nominations }} nominations</p>{{/if}}
+                            {{#if movie.lastupdated}}<p><strong>Last Updated:</strong> {{formatDate movie.lastupdated }}
+                            </p>{{/if}}
                         </div>
                     </div>
                 </div>
-                {{/if}}
-                {{/each}}
+
                 {{#if user}}
                 <div class="row mt-2">
                     <div class="col-md-6 d-flex justify-content-end">
@@ -74,7 +68,23 @@
         </div>
     </div>
 </div>
-{{#if user}}
+{{/if}}
+
+{{#unless movie.title}}
+<style>
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+    }
+</style>
+<h2>No data available!</h2>
+{{/unless}}
+
+{{#if movie.title}}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const editButton = document.getElementById('edit-button');
@@ -95,8 +105,10 @@
                         method: 'DELETE',
                         credentials: 'include' // Include cookies in the request
                     });
+                    const responseData = await response.json();
                     if (response.ok) {
-                        document.location.replace('/api/Movies?page=1&perPage=8&title=');
+                        alert(responseData.message);
+                        window.location.href = '/api/Movies?page=1&perPage=8&title=';
                     } else {
                         console.error('Failed to delete movie');
                     }

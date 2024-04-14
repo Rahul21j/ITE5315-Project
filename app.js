@@ -67,6 +67,9 @@ app.engine(
         if (a < b) return true;
         else return false;
       },
+      formatDate: function (date) {
+        return new Date(parseInt(date)).toLocaleDateString();
+      },
     },
   })
 );
@@ -190,15 +193,15 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
       e.msg === error.msg && e.path === error.path
     ))
   );
-  console.log(uniqueErrors);
     return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
   }
 
   const page = parseInt(req.query.page) || 1;
   var perPage = parseInt(req.query.perPage) || 8;
-  if (perPage % 8 !== 0) {
-    const nearestMultipleOf8 = Math.round(perPage / 8) * 8;
-    perPage = nearestMultipleOf8;
+  perPage = (perPage<24) ? perPage : 8;
+  if (perPage % 4 !== 0) {
+    const nearestMultipleOf4 = Math.round(perPage / 4) * 4;
+    perPage = nearestMultipleOf4;
   }
   const title = req.query.title || "";
 
@@ -347,12 +350,58 @@ app.post("/api/Movies", async (req, res) => {
 // Get Movie Details by Id
 app.get("/api/Movies/:id", async (req, res) => {
   try {
-    const movies = await database.getMovieById(req.params.id);
-    res.render("movieDetails", { pageTitle: "Movie Details", movies: movies });
+    const movieId = req.params.id;
+    const query = `
+    query {
+      movieById(id: "${movieId}") {
+        id
+        title
+        year
+        plot
+        fullplot
+        poster
+    runtime
+    released
+    imdb {
+      rating
+    }
+    tomatoes {
+      viewer {
+        rating
+      }
+    }
+    rated
+    awards {
+      wins
+      nominations
+    }
+    lastupdated
+      }
+    }
+    `;
+
+    const response = await fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+    const responseData = await response.json();
+
+    if (responseData.errors) {
+      throw new Error(responseData.errors[0].message);
+    }
+
+    const movie = responseData.data.movieById;
+
+    res.render("movieDetails", { pageTitle: "Movie Details", movie: movie });
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Route to display update data form
 app.get("/api/Movies/:id/update", async (req, res) => {
@@ -424,18 +473,18 @@ app.put("/api/Movies/:id", async (req, res) => {
 app.delete("/api/Movies/:id", authenticateUser, async (req, res) => {
   try {
     const movie = await database.deleteMovieById(req.params.id);
+    console.log("Movie with id " + req.params.id + " deleted");
     if (!movie) {
       return res.status(404).json({ message: "Movie not found" });
     }
-    console.log("Movie deleted successfully.");
-    res.status(200).json();
+    res.status(200).json({message: "Movie deleted successfully"});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 const { graphqlHTTP } = require('express-graphql');
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList } = require('graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
 
 // Define MovieType for GraphQL schema
 const MovieType = new GraphQLObjectType({
@@ -443,7 +492,46 @@ const MovieType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLString },
     title: { type: GraphQLString },
-    // Define other fields here
+    year: { type: GraphQLString},
+    plot: { type: GraphQLString },
+    fullplot: { type: GraphQLString },
+    poster: { type: GraphQLString },
+    runtime: { type: GraphQLInt },
+    released: { type: GraphQLString },
+    imdb: {
+      type: new GraphQLObjectType({
+        name: 'IMDBRating',
+        fields: () => ({
+          rating: { type: GraphQLFloat }
+        })
+      })
+    },
+    tomatoes: {
+      type: new GraphQLObjectType({
+        name: 'TomatoesRating',
+        fields: () => ({
+          viewer: {
+            type: new GraphQLObjectType({
+              name: 'ViewerRating',
+              fields: () => ({
+                rating: { type: GraphQLFloat }
+              })
+            })
+          }
+        })
+      })
+    },
+    rated: { type: GraphQLString },
+    awards: {
+      type: new GraphQLObjectType({
+        name: 'Awards',
+        fields: () => ({
+          wins: { type: GraphQLInt },
+          nominations: { type: GraphQLInt }
+        })
+      })
+    },
+    lastupdated: { type: GraphQLString }
   })
 });
 
@@ -457,14 +545,25 @@ const schema = new GraphQLSchema({
         args: {
           page: { type: GraphQLInt },
           perPage: { type: GraphQLInt },
-          title: { type: GraphQLString }
+          id: { type: GraphQLString }
         },
         resolve: async (_, args) => {
           const { page = 1, perPage = 8, title = '' } = args;
           const movies = await database.getAllMovies(page, perPage, title);
           return movies;
         }
-      }
+      },
+      movieById: {
+        type: MovieType,
+        args: {
+          id: { type: GraphQLString }
+        },
+        resolve: async (_, args) => {
+          const { id } = args;
+          const movie = await database.getMovieById(id);
+          return movie;
+        }
+      },
     }
   })
 });
