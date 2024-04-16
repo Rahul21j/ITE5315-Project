@@ -305,8 +305,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
         }
       }
     `;
-    const hostUrl = `${req.protocol}://${req.get('host')}`;
-    console.log(`${hostUrl}/graphql-/api/Movies`);
+
     const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
@@ -314,7 +313,8 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
       },
       body: JSON.stringify({ query }),
     });
-
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    console.log(`${hostUrl}/graphql-/api/Movies`);
     const responseData = await response.json();
 
     const movies = responseData.data.movies;
