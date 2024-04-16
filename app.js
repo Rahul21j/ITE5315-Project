@@ -488,8 +488,8 @@ app.get("/api/Movies/:id", async (req, res) => {
       }
     }
     `;
-
-    const response = await fetch('/graphql', {
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
