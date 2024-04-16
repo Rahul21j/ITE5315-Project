@@ -30,11 +30,9 @@ app.use((req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       res.locals.user = decoded;
     } catch (error) {
-      // Token is invalid
       res.locals.user = null;
     }
   } else {
-    // No token provided
     res.locals.user = null;
   }
 
@@ -361,8 +359,9 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
     }
     res.render("index", data);
   } catch (err) {
+    console.error("line 362");
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(err);
   }
 });
 
