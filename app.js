@@ -272,8 +272,7 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/api/Movies", validateQueryParams, async (req, res) => {
-  const hostUrl = `${req.protocol}://${req.get('host')}`;
-    console.log(`${hostUrl}/graphql-/api/Movies`);
+  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const uniqueErrors = errors.array().filter((error, index, self) =>
@@ -283,7 +282,8 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
   );
     return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
   }
-
+  const hostUrl = `${req.protocol}://${req.get('host')}`;
+  console.log(`${hostUrl}/graphql-/api/Movies`);
   const page = parseInt(req.query.page) || 1;
   var perPage = parseInt(req.query.perPage) || 8;
   perPage = (perPage<24) ? perPage : 8;
