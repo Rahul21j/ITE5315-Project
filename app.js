@@ -273,7 +273,7 @@ app.post("/logout", (req, res) => {
 
 app.get("/api/Movies", validateQueryParams, async (req, res) => {
   const hostUrl = `${req.protocol}://${req.get('host')}`;
-    console.log(`${hostUrl}/graphql`);
+    console.log(`${hostUrl}s/graphql`);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const uniqueErrors = errors.array().filter((error, index, self) =>
