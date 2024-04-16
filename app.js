@@ -81,6 +81,12 @@ app.engine(
   })
 );
 
+const validateQueryParams = [
+  query('page').notEmpty().isInt().toInt(),
+  query('perPage').notEmpty().isInt().toInt(),
+  query('title').optional().isString(),
+];
+
 async function authenticateUser(req, res, next) {
   const token = req.cookies.token;
 
@@ -268,6 +274,99 @@ app.post("/logout", (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
+app.get("/api/Movies", validateQueryParams, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const uniqueErrors = errors.array().filter((error, index, self) =>
+    index === self.findIndex((e) => (
+      e.msg === error.msg && e.path === error.path
+    ))
+  );
+    return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  var perPage = parseInt(req.query.perPage) || 8;
+  perPage = (perPage<24) ? perPage : 8;
+  if (perPage % 4 !== 0) {
+    const nearestMultipleOf4 = Math.round(perPage / 4) * 4;
+    perPage = nearestMultipleOf4;
+  }
+  const title = req.query.title || "";
+
+  try {
+    const query = `
+      query {
+        movies(page: ${page}, perPage: ${perPage}, title: "${title}") {
+          id
+          title
+          year
+          poster
+          imdb {
+            rating
+          }
+        }
+      }
+    `;
+    const response = await fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    const responseData = await response.json();
+
+    const movies = responseData.data.movies;
+
+    // Count total documents matching the query
+    const count = await Movie.countDocuments(
+      title ? { title: { $regex: title, $options: "i" } } : {}
+    );
+
+    // Calculate total pages and pagination
+    const totalPages = Math.ceil(count / perPage);
+    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
+    const paginationArray = [];
+    for (let i = startPage; i <= endPage; i++) {
+      paginationArray.push({
+        pageNumber: i,
+        isCurrent: i === page,
+      });
+    }
+
+    const data = {
+      pageTitle: "Welcome to Movie Browser",
+      message: "This is the homepage!",
+      movies: movies,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalMovies: count,
+        perPage: perPage,
+        paginationArray: paginationArray,
+        previousPage: page > 1 ? page - 1 : null,
+        nextPage: page < totalPages ? page + 1 : null,
+      },
+    };
+    if (req.xhr) {
+      return res.json(data);
+    }
+    res.render("index", data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 // Display add form.
 app.get("/api/Movies/add", async (req, res) => {
   try {
@@ -421,7 +520,7 @@ app.get("/api/Movies/:id/update", async (req, res) => {
   try {
     const movie = await Movie.findById(movieId);
     if (!movie) {
-      return res.status(404).json({ messaaaage: "Movie not found" });
+      return res.render("404", {pageTitle: "Error", error: "Movie not found"});
     }
     movieData = {
       title: movie.title,
@@ -492,103 +591,6 @@ app.delete("/api/Movies/:id", authenticateUser, async (req, res) => {
     res.status(200).json({message: "Movie deleted successfully"});
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-});
-
-const validateQueryParams = [
-  query('page').notEmpty().isInt().toInt(),
-  query('perPage').notEmpty().isInt().toInt(),
-  query('title').optional().isString(),
-];
-app.get("/api/Movies", validateQueryParams, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const uniqueErrors = errors.array().filter((error, index, self) =>
-    index === self.findIndex((e) => (
-      e.msg === error.msg && e.path === error.path
-    ))
-  );
-    return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
-  }
-
-  const page = parseInt(req.query.page) || 1;
-  var perPage = parseInt(req.query.perPage) || 8;
-  perPage = (perPage<24) ? perPage : 8;
-  if (perPage % 4 !== 0) {
-    const nearestMultipleOf4 = Math.round(perPage / 4) * 4;
-    perPage = nearestMultipleOf4;
-  }
-  const title = req.query.title || "";
-
-  try {
-    const query = `
-      query {
-        movies(page: ${page}, perPage: ${perPage}, title: "${title}") {
-          id
-          title
-          year
-          poster
-          imdb {
-            rating
-          }
-        }
-      }
-    `;
-    const response = await fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    });
-
-    const responseData = await response.json();
-
-    const movies = responseData.data.movies;
-
-    // Count total documents matching the query
-    const count = await Movie.countDocuments(
-      title ? { title: { $regex: title, $options: "i" } } : {}
-    );
-
-    // Calculate total pages and pagination
-    const totalPages = Math.ceil(count / perPage);
-    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    const paginationArray = [];
-    for (let i = startPage; i <= endPage; i++) {
-      paginationArray.push({
-        pageNumber: i,
-        isCurrent: i === page,
-      });
-    }
-
-    const data = {
-      pageTitle: "Welcome to Movie Browser",
-      message: "This is the homepage!",
-      movies: movies,
-      pagination: {
-        currentPage: page,
-        totalPages: totalPages,
-        totalMovies: count,
-        perPage: perPage,
-        paginationArray: paginationArray,
-        previousPage: page > 1 ? page - 1 : null,
-        nextPage: page < totalPages ? page + 1 : null,
-      },
-    };
-    if (req.xhr) {
-      return res.json(data);
-    }
-    res.render("index", data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

@@ -9,12 +9,5 @@
     }
 </style>
 <div class="container">
-<h1>{{pageTitle}}:
-  <br />
-  {{#if errors}}
-    {{#each errors}}
-      <br /><h3>{{this.msg}} for {{this.path}} in {{this.location}}.</h3>
-    {{/each}}
-  {{/if}}
-</h1>
+    <h1>{{pageTitle}}: {{#if error}}{{error}}{{/if}}</h1>
 </div>

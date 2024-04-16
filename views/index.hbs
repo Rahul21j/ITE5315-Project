@@ -74,7 +74,7 @@
   <div class="row">
     {{#each movies}}
     <div class="col-md-3">
-      <a href="/api/Movies/{{getProperty "_id"}}">
+      <a href="/api/Movies/{{getProperty "id"}}">
         <div class="card shadow mb-4">
           <img class="poster" src="{{getProperty "poster"}}"
             onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';"
@@ -133,6 +133,7 @@
         url: url,
         type: 'GET',
         success: function (data) {
+          debugger
           $('#moviesContainer').empty();
           $('#pagination').empty();
 
@@ -140,7 +141,7 @@
           data.movies.forEach(function (movie) {
             movieHtml += `
             <div class="col-md-3">
-              <a href="/api/Movies/${movie._id}">
+              <a href="/api/Movies/${movie.id}">
                 <div class="card shadow mb-4">
                   <img class="poster" src="${movie.poster}" onerror="this.onerror=null;this.src='https://img.freepik.com/free-photo/view-3d-cinema-elements_23-2150720822.jpg';" class="card-img-top" alt="Movie Poster">
                   <div class="card-body">
