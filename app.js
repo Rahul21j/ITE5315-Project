@@ -358,9 +358,10 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
       return res.json(data);
     }
     res.render("index", data);
-  } catch (err) {
-    res.status(500).json({ error: "Internal Server Error----",err });
+  }catch (err) {
+    res.status(500).json({ error: "Internal Server Error", message: err.message });
   }
+  
 });
 
 
