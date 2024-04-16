@@ -1,15 +1,22 @@
 require("dotenv").config();
 var express = require("express");
 var database = require("./config/database");
-var app = express();
 const cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 const exphbs = require("express-handlebars");
-
 var cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { validationResult, query } = require('express-validator');
+const { graphqlHTTP } = require('express-graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
+
+var app = express();
 var port = process.env.PORT || 8000;
+const dbConnectionString = process.env.DB_CONNECTION_STRING;
+const Movie = require("./models/movies");
+const User = require("./models/users");
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: "true" }));
 app.use(bodyParser.json());
@@ -34,7 +41,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const dbConnectionString = process.env.DB_CONNECTION_STRING;
+app.set("view engine", "hbs");
 
 database
   .initialize(dbConnectionString)
@@ -74,11 +81,6 @@ app.engine(
   })
 );
 
-app.set("view engine", "hbs");
-
-const Movie = require("./models/movies");
-const User = require("./models/users");
-
 async function authenticateUser(req, res, next) {
   const token = req.cookies.token;
 
@@ -99,13 +101,103 @@ function generateToken(user) {
   return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h" });
 }
 
-const { validationResult, query } = require('express-validator');
+// Define MovieType for GraphQL schema
+const MovieType = new GraphQLObjectType({
+  name: 'Movie',
+  fields: () => ({
+    id: { type: GraphQLString },
+    title: { type: GraphQLString },
+    year: { type: GraphQLString},
+    plot: { type: GraphQLString },
+    fullplot: { type: GraphQLString },
+    poster: { type: GraphQLString },
+    runtime: { type: GraphQLInt },
+    released: { type: GraphQLString },
+    imdb: {
+      type: new GraphQLObjectType({
+        name: 'IMDBRating',
+        fields: () => ({
+          rating: { type: GraphQLFloat }
+        })
+      })
+    },
+    tomatoes: {
+      type: new GraphQLObjectType({
+        name: 'TomatoesRating',
+        fields: () => ({
+          viewer: {
+            type: new GraphQLObjectType({
+              name: 'ViewerRating',
+              fields: () => ({
+                rating: { type: GraphQLFloat }
+              })
+            })
+          }
+        })
+      })
+    },
+    rated: { type: GraphQLString },
+    awards: {
+      type: new GraphQLObjectType({
+        name: 'Awards',
+        fields: () => ({
+          wins: { type: GraphQLInt },
+          nominations: { type: GraphQLInt }
+        })
+      })
+    },
+    lastupdated: { type: GraphQLString }
+  })
+});
 
-const validateQueryParams = [
-  query('page').notEmpty().isInt().toInt(),
-  query('perPage').notEmpty().isInt().toInt(),
-  query('title').optional().isString(),
-];
+// Define your GraphQL schema
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'Query',
+    fields: {
+      movies: {
+        type: new GraphQLList(MovieType),
+        args: {
+          page: { type: GraphQLInt },
+          perPage: { type: GraphQLInt },
+          title: { type: GraphQLString }
+        },
+        resolve: async (_, args) => {
+          const { page = 1, perPage = 8, title = '' } = args;
+          console.log(page, perPage, title);
+          const movies = await database.getAllMovies(page, perPage, title);
+          return movies;
+        }
+      },
+      movieById: {
+        type: MovieType,
+        args: {
+          id: { type: GraphQLString }
+        },
+        resolve: async (_, args) => {
+          const { id } = args;
+          const movie = await database.getMovieById(id);
+          return movie;
+        }
+      },
+    }
+  })
+});
+
+// Connect GraphQL to Express
+app.use('/graphql', graphqlHTTP({
+  schema: schema,
+  graphiql: true
+}));
+
+const maxPagesToShow = 15;
+
+app.get("/", (req, res) => {
+  const data = {
+    pageTitle: "Movies",
+  };
+  res.redirect("/signup");
+});
 
 app.get("/signup", (req, res) => {
   res.render("signup");
@@ -174,85 +266,6 @@ app.post("/login", async (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.status(200).json({ message: "Logged out successfully" });
-});
-
-app.get("/", (req, res) => {
-  const data = {
-    pageTitle: "Movies",
-  };
-  res.redirect("/signup");
-});
-
-const maxPagesToShow = 15;
-
-app.get("/api/Movies", validateQueryParams, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const uniqueErrors = errors.array().filter((error, index, self) =>
-    index === self.findIndex((e) => (
-      e.msg === error.msg && e.path === error.path
-    ))
-  );
-    return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
-  }
-
-  const page = parseInt(req.query.page) || 1;
-  var perPage = parseInt(req.query.perPage) || 8;
-  perPage = (perPage<24) ? perPage : 8;
-  if (perPage % 4 !== 0) {
-    const nearestMultipleOf4 = Math.round(perPage / 4) * 4;
-    perPage = nearestMultipleOf4;
-  }
-  const title = req.query.title || "";
-
-  try {
-    // Call getAllMovies function to retrieve movies
-    const movies = await database.getAllMovies(page, perPage, title);
-
-    // Count total documents matching the query
-    const count = await Movie.countDocuments(
-      title ? { title: { $regex: title, $options: "i" } } : {}
-    );
-
-    // Calculate total pages and pagination
-    const totalPages = Math.ceil(count / perPage);
-    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-    if (endPage - startPage + 1 < maxPagesToShow) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-
-    const paginationArray = [];
-    for (let i = startPage; i <= endPage; i++) {
-      paginationArray.push({
-        pageNumber: i,
-        isCurrent: i === page,
-      });
-    }
-
-    const data = {
-      pageTitle: "Welcome to Sample Movie App",
-      message: "This is the homepage!",
-      movies: movies,
-      pagination: {
-        currentPage: page,
-        totalPages: totalPages,
-        totalMovies: count,
-        perPage: perPage,
-        paginationArray: paginationArray,
-        previousPage: page > 1 ? page - 1 : null,
-        nextPage: page < totalPages ? page + 1 : null,
-      },
-    };
-    if (req.xhr) {
-      return res.json(data);
-    }
-    res.render("index", data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
 });
 
 // Display add form.
@@ -402,7 +415,6 @@ app.get("/api/Movies/:id", async (req, res) => {
   }
 });
 
-
 // Route to display update data form
 app.get("/api/Movies/:id/update", async (req, res) => {
   const movieId = req.params.id;
@@ -483,95 +495,101 @@ app.delete("/api/Movies/:id", authenticateUser, async (req, res) => {
   }
 });
 
-const { graphqlHTTP } = require('express-graphql');
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
+const validateQueryParams = [
+  query('page').notEmpty().isInt().toInt(),
+  query('perPage').notEmpty().isInt().toInt(),
+  query('title').optional().isString(),
+];
+app.get("/api/Movies", validateQueryParams, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const uniqueErrors = errors.array().filter((error, index, self) =>
+    index === self.findIndex((e) => (
+      e.msg === error.msg && e.path === error.path
+    ))
+  );
+    return res.render("error", {pageTitle: "Error", errors: uniqueErrors});
+  }
 
-// Define MovieType for GraphQL schema
-const MovieType = new GraphQLObjectType({
-  name: 'Movie',
-  fields: () => ({
-    id: { type: GraphQLString },
-    title: { type: GraphQLString },
-    year: { type: GraphQLString},
-    plot: { type: GraphQLString },
-    fullplot: { type: GraphQLString },
-    poster: { type: GraphQLString },
-    runtime: { type: GraphQLInt },
-    released: { type: GraphQLString },
-    imdb: {
-      type: new GraphQLObjectType({
-        name: 'IMDBRating',
-        fields: () => ({
-          rating: { type: GraphQLFloat }
-        })
-      })
-    },
-    tomatoes: {
-      type: new GraphQLObjectType({
-        name: 'TomatoesRating',
-        fields: () => ({
-          viewer: {
-            type: new GraphQLObjectType({
-              name: 'ViewerRating',
-              fields: () => ({
-                rating: { type: GraphQLFloat }
-              })
-            })
+  const page = parseInt(req.query.page) || 1;
+  var perPage = parseInt(req.query.perPage) || 8;
+  perPage = (perPage<24) ? perPage : 8;
+  if (perPage % 4 !== 0) {
+    const nearestMultipleOf4 = Math.round(perPage / 4) * 4;
+    perPage = nearestMultipleOf4;
+  }
+  const title = req.query.title || "";
+
+  try {
+    const query = `
+      query {
+        movies(page: ${page}, perPage: ${perPage}, title: "${title}") {
+          id
+          title
+          year
+          poster
+          imdb {
+            rating
           }
-        })
-      })
-    },
-    rated: { type: GraphQLString },
-    awards: {
-      type: new GraphQLObjectType({
-        name: 'Awards',
-        fields: () => ({
-          wins: { type: GraphQLInt },
-          nominations: { type: GraphQLInt }
-        })
-      })
-    },
-    lastupdated: { type: GraphQLString }
-  })
-});
+        }
+      }
+    `;
+    const response = await fetch('http://localhost:8000/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
 
-// Define your GraphQL schema
-const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'Query',
-    fields: {
-      movies: {
-        type: new GraphQLList(MovieType),
-        args: {
-          page: { type: GraphQLInt },
-          perPage: { type: GraphQLInt },
-          id: { type: GraphQLString }
-        },
-        resolve: async (_, args) => {
-          const { page = 1, perPage = 8, title = '' } = args;
-          const movies = await database.getAllMovies(page, perPage, title);
-          return movies;
-        }
-      },
-      movieById: {
-        type: MovieType,
-        args: {
-          id: { type: GraphQLString }
-        },
-        resolve: async (_, args) => {
-          const { id } = args;
-          const movie = await database.getMovieById(id);
-          return movie;
-        }
-      },
+    const responseData = await response.json();
+
+    const movies = responseData.data.movies;
+
+    // Count total documents matching the query
+    const count = await Movie.countDocuments(
+      title ? { title: { $regex: title, $options: "i" } } : {}
+    );
+
+    // Calculate total pages and pagination
+    const totalPages = Math.ceil(count / perPage);
+    let startPage = Math.max(1, page - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
     }
-  })
-});
 
-// Connect GraphQL to Express
-app.use('/graphql', graphqlHTTP({
-  schema: schema,
-  graphiql: true // Enable GraphiQL interface for testing
-}));
+    const paginationArray = [];
+    for (let i = startPage; i <= endPage; i++) {
+      paginationArray.push({
+        pageNumber: i,
+        isCurrent: i === page,
+      });
+    }
+
+    const data = {
+      pageTitle: "Welcome to Movie Browser",
+      message: "This is the homepage!",
+      movies: movies,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalMovies: count,
+        perPage: perPage,
+        paginationArray: paginationArray,
+        previousPage: page > 1 ? page - 1 : null,
+        nextPage: page < totalPages ? page + 1 : null,
+      },
+    };
+    if (req.xhr) {
+      return res.json(data);
+    }
+    res.render("index", data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 module.exports = app;

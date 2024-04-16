@@ -1,5 +1,4 @@
 {{#if user}}
-<h1>{{pageTitle}}</h1>
 
 <style>
     .add-btn {
@@ -7,10 +6,11 @@
     }
 
     #addMovie {
-        background-color: khaki;
+        background-color: #e5e4e2;
     }
 </style>
 <div id="addMovie" class="container">
+    <h1>{{pageTitle}}</h1>
     <form action="/api/Movies/" method="POST">
         <div class="form-row">
             <div class="form-group col-md-4">
