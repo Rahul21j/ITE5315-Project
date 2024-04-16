@@ -272,8 +272,8 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/api/Movies", validateQueryParams, async (req, res) => {
-  const hostUrl = `${req.protocol}s://${req.get('host')}`;
-    console.log(`${hostUrl}/graphql`);
+  const hostUrl = `${req.protocol}://${req.get('host')}`;
+    console.log(`${hostUrl}/graphql-/api/Movies`);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const uniqueErrors = errors.array().filter((error, index, self) =>
@@ -307,7 +307,6 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
         }
       }
     `;
-    const hostUrl = `${req.protocol}s://${req.get('host')}`;
     const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
@@ -460,8 +459,8 @@ app.post("/api/Movies", async (req, res) => {
 
 // Get Movie Details by Id
 app.get("/api/Movies/:id", async (req, res) => {
-  const hostUrl = `${req.protocol}s://${req.get('host')}`;
-    console.log(`${hostUrl}/graphql`);
+  const hostUrl = `${req.protocol}://${req.get('host')}`;
+    console.log(`${hostUrl}/graphql-/api/Movies/:id`);
   try {
     const movieId = req.params.id;
     const query = `
