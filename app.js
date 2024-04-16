@@ -168,7 +168,6 @@ const schema = new GraphQLSchema({
         },
         resolve: async (_, args) => {
           const { page = 1, perPage = 8, title = '' } = args;
-          console.log(page, perPage, title);
           const movies = await database.getAllMovies(page, perPage, title);
           return movies;
         }
@@ -306,7 +305,8 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
         }
       }
     `;
-    const response = await fetch('http://localhost:8000/graphql', {
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -359,9 +359,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
     }
     res.render("index", data);
   } catch (err) {
-    console.error("line 362");
-    console.error(err);
-    next(err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -491,7 +489,7 @@ app.get("/api/Movies/:id", async (req, res) => {
     }
     `;
 
-    const response = await fetch('http://localhost:8000/graphql', {
+    const response = await fetch('/graphql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
