@@ -343,7 +343,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
     }
 
     const data = {
-      pageTitle: "Welcome to Movie Browser",
+      pageTitle: "Welcome to Movies Browser",
       message: "This is the homepage!",
       movies: movies,
       pagination: {
