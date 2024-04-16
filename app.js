@@ -313,8 +313,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
       },
       body: JSON.stringify({ query }),
     });
-    const hostUrl = `${req.protocol}://${req.get('host')}`;
-    console.log(`${hostUrl}/graphql-/api/Movies`);
+
     const responseData = await response.json();
 
     const movies = responseData.data.movies;
@@ -360,7 +359,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
     }
     res.render("index", data);
   } catch (err) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error----",err });
   }
 });
 
