@@ -496,6 +496,7 @@ app.get("/api/Movies/:id", async (req, res) => {
       },
       body: JSON.stringify({ query }),
     });
+    console.log(response);
     const responseData = await response.json();
 
     if (responseData.errors) {
@@ -507,6 +508,7 @@ app.get("/api/Movies/:id", async (req, res) => {
     res.render("movieDetails", { pageTitle: "Movie Details", movie: movie });
 
   } catch (error) {
+    console.error("Failed to");
     res.status(500).json({ message: error.message });
   }
 });
