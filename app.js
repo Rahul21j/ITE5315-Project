@@ -305,7 +305,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
         }
       }
     `;
-
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
     const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
@@ -452,7 +452,7 @@ app.post("/api/Movies", async (req, res) => {
       },
     });
     const savedMovie = await database.addNewMovie(movie);
-    return redirect("/api/Movies?page=1&perPage=8&title=");
+    res.redirect("/api/Movies?page=1&perPage=8&title=");
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
