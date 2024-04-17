@@ -1,3 +1,10 @@
+/********************************************************************************** 
+ * ITE5315 – Project
+ * I declare that this assignment is my own work in accordance with Humber Academic Policy.
+ * No part of this assignment has been copied manually or electronically from any other source
+ * (including web sites) or distributed to other students.
+ ** Group member Name: Janvi Patel & Rahul Jayswal Student IDs: N01579859 & N01579470 Date: 4/16/2024
+ ***/
 require("dotenv").config();
 var express = require("express");
 var database = require("./config/database");
@@ -252,7 +259,7 @@ app.post("/login", async (req, res) => {
           email: user.email,
         });
         // Set token as cookie
-        res.cookie("token", token, { httpOnly: true, maxAge: 3600000 }); // Expires in 1 hour
+        res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
         return res.status(200).json({ token });
       } else {
         return res.status(401).json({ error: "Invalid password" });
@@ -317,7 +324,6 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
     const responseData = await response.json();
 
     const movies = responseData.data.movies;
-
     // Count total documents matching the query
     const count = await Movie.countDocuments(
       title ? { title: { $regex: title, $options: "i" } } : {}
@@ -344,12 +350,13 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
       pageTitle: "Welcome to Movies Browser",
       message: "This is the homepage!",
       movies: movies,
+      title: title,
       pagination: {
-        currentPage: page,
+        currentPage: Math.min(page, totalPages),
         totalPages: totalPages,
         totalMovies: count,
         perPage: perPage,
-        paginationArray: paginationArray,
+        paginationArray: paginationArray.length > 1 ? paginationArray : [],
         previousPage: page > 1 ? page - 1 : null,
         nextPage: page < totalPages ? page + 1 : null,
       },

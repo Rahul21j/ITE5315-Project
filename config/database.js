@@ -1,3 +1,10 @@
+/**********************************************************************************
+ * ITE5315 – Project
+ * I declare that this assignment is my own work in accordance with Humber Academic Policy.
+ * No part of this assignment has been copied manually or electronically from any other source
+ * (including web sites) or distributed to other students.
+ ** Group member Name: Janvi Patel & Rahul Jayswal Student IDs: N01579859 & N01579470 Date: 4/16/2024
+ ***/
 const mongoose = require("mongoose");
 const Movie = require("../models/movies");
 const User = require("../models/users");
@@ -36,10 +43,14 @@ async function addNewMovie(data) {
 async function getAllMovies(page, perPage, title) {
   try {
     const query = title ? { title: { $regex: title, $options: "i" } } : {};
-    return await Movie.find(query)
-      .skip((page - 1) * perPage)
+    const totalCount = await Movie.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / perPage);
+    const currentPage = Math.min(page, totalPages);
+    const movies = await Movie.find(query)
+      .skip((currentPage - 1) * perPage)
       .limit(perPage)
       .sort({ _id: 1 });
+    return movies;
   } catch (error) {
     console.error("Error getting all movies:", error);
     throw error;
