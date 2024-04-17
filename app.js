@@ -312,7 +312,9 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
         }
       }
     `;
-    const response = await fetch(`/graphql`, {
+    console.log(JSON.stringify({ query }));
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+    const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -321,7 +323,7 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
     });
 
     const responseData = await response.json();
-
+console.log(responseData);
     const movies = responseData.data.movies;
     // Count total documents matching the query
     const count = await Movie.countDocuments(
@@ -466,6 +468,8 @@ app.post("/api/Movies", async (req, res) => {
 
 // Get Movie Details by Id
 app.get("/api/Movies/:id", async (req, res) => {
+  const hostUrl = `${req.protocol}://${req.get('host')}`;
+    console.log(`${hostUrl}/graphql`);
   try {
     const movieId = req.params.id;
     const query = `
@@ -497,14 +501,13 @@ app.get("/api/Movies/:id", async (req, res) => {
     }
     `;
     
-    const response = await fetch(`/graphql`, {
+    const response = await fetch(`${hostUrl}/graphql`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ query }),
     });
-    console.log(response);
     const responseData = await response.json();
 
     if (responseData.errors) {
