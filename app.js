@@ -176,7 +176,6 @@ const schema = new GraphQLSchema({
         resolve: async (_, args) => {
           const { page = 1, perPage = 8, title = '' } = args;
           const movies = await database.getAllMovies(page, perPage, title);
-          console.log(movies);
           return movies;
         }
       },
