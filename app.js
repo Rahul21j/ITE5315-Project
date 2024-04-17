@@ -321,6 +321,12 @@ app.get("/api/Movies", validateQueryParams, async (req, res) => {
       body: JSON.stringify({ query }),
     });
 
+    if (!response.ok) {
+      console.log(response);
+      const error = await response.json();
+      return res.status(response.status).json({ error: error.message });
+    }
+
     const responseData = await response.json();
 
     const movies = responseData.data.movies;
